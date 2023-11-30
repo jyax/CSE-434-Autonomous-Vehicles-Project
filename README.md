@@ -33,4 +33,4 @@ The turtlebot will hopefully provide insight into its accuracy to detect crosswa
 
 ### Conclusion
 
-By properly detecting crosswalks and pedestrians, we would reduce the risk of collision with pedestrians.
+By detecting crosswalks and pedestrians, potential risks of collision with pedestrians can be reduced, thereby greatly increasing the safety of pedestrian walkways in an autonomous world. This experiment would show that an autonomous vehicle can determine, with a high degree of accuracy, that there is a pedestrian and/or walkway present in front of it, and stop correctly to prevent collision.
