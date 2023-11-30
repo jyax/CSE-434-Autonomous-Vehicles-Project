@@ -24,13 +24,13 @@ To address this risk object detection can be utilized similar to what was done i
 
 ### Approach
 
-We plan to utilize YOLOv5 on pre-trained models for crosswalkks and pedestrians. We want to have the vehicle slow down when it detects either a pedestrian or crosswalk designation. If a pedestrian is detected close to the middle of our detection field, we will gradually slow down to a stop to prevent from hitting the pedestrian.
+We plan to utilize YOLOv5 on pre-trained models for crosswalks and pedestrians. We want to have the vehicle slow down when it detects either a pedestrian or crosswalk designation. If a pedestrian is detected close to the middle of our detection field, we will gradually slow down to a stop to prevent from hitting the pedestrian.
 
 
 ### Results
 
-To be determined.
+The turtlebot will hopefully provide insight into its accuracy to detect crosswalks and the accuracy to detect pedestrians.
 
 ### Conclusion
 
-To be determined.
+By properly detecting crosswalks and pedestrians, we would reduce the risk of collision with pedestrians.
