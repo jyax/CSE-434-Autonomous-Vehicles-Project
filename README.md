@@ -29,7 +29,7 @@ We plan to utilize YOLOv5 on pre-trained models for crosswalks and pedestrians. 
 
 ### Results
 
-The turtlebot will hopefully provide insight into its accuracy to detect crosswalks and the accuracy to detect pedestrians.
+The turtlebot will hopefully provide insight into its accuracy to detect crosswalks and the accuracy to detect pedestrians. The turtlebot can detect crosswalks with x% accuracy and pedestrians with y% accuracy. It might not be able to detect crosswalks properly if a vehicle is in front.
 
 ### Conclusion
 
