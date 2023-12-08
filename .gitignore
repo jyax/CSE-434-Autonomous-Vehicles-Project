@@ -1,1 +1,13 @@
 images/
+
+*.pyc
+*.bag
+*.pyc
+.vscode
+*.ini
+*.avi
+*.gz
+*.zip
+
+
+
