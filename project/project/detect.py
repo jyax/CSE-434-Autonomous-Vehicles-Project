@@ -1,55 +1,88 @@
+#!/usr/bin/env python
+# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+
+"""
+Demo of running YOLOv5 for sign detection on an image.  
+Code simplified from detect.py in YOLOv5
+
+Requires cloning of YOLOv5 repo: https://github.com/ultralytics/yolov5
+"""
+
+import os
 import rclpy
 from rclpy.node import Node
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image, CompressedImage
 import numpy as np
+import torch
+from pathlib import Path
+import platform
+import argparse
+import sys
+import glob
 
-# import model from roboflow
-from roboflow import Roboflow
-rf = Roboflow(api_key="T1shm97ow35fVI0S8ksT")
-project = rf.workspace().project("project-he2on")
-model = project.version(3).model
+# YOLOv5 setup.  Adjust this to point to your yolov5 folder:
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[3] / 'yolov5'  # YOLOv5 root directory -- adjust this
+if not ROOT.is_dir():
+    raise ValueError(f"No yolov5 repo located here: {ROOT}")
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+
+from models.common import DetectMultiBackend
+from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
+                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
+from ultralytics.utils.plotting import Annotator, colors
+from utils.torch_utils import select_device, smart_inference_mode
 
 class Detect(Node):
-    def __init__(self):
+    def __init__(self, weights):
         super().__init__('crosswalks')
         self.bridge = CvBridge()
         self.subscription = self.create_subscription(
-            CompressedImage, '/camera/image_raw/compressed', self.run_detect, 10)
+            Image, '/camera/image_raw', self.run_detect, 10)
+
+        print('Loading model')
+        imgsz = np.array([640,640])
+        device = select_device('')
+        self.model = DetectMultiBackend(weights, device=device, dnn=False, data='coco128.yaml', fp16=False)
+        self.stride, self.names, self.pt = self.model.stride, self.model.names, self.model.pt
+        self.imgsz = check_img_size(imgsz, s=self.stride)
 
     def run_detect(self, msg):
-        # convert compressed image to cv2 image
         try:
-            img = self.bridge.compressed_imgmsg_to_cv2(msg)
+            img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         except CvBridgeError as e:
             print(e)
             return
 
-        # use roboflow model to detect crosswalks
-        detections = model.predict(img, confidence=80, overlap=30).json()
+        img_resized = cv2.resize(img,self.imgsz)  # convert to target size
+        img_resized = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB) # convert to RGB
+        img_tensor = torch.from_numpy(img_resized).to(self.model.device)
+        img_tensor = img_tensor.float() / 255.0
+        img_tensor = img_tensor.permute(2, 0, 1).unsqueeze(0) # Pytorch needs format: channels x height x width
 
-        # draw bounding box
-        imout = img.copy()
-        for detection in detections['predictions']:
-            x1 = int(detection['x'] - detection['width'] / 2)
-            x2 = int(detection['x'] + detection['width'] / 2)
-            y1 = int(detection['y'] - detection['height'] / 2)
-            y2 = int(detection['y'] + detection['height'] / 2)
-            print(f"{x1}, {x2}, {y1}, {y2}")
-            cv2.rectangle(imout, (x1, y1), (x2, y2), (255, 0, 0), 2)
+       
+        pred = self.model(img_tensor)
+        pred = non_max_suppression(pred, conf_thres=0.25, iou_thres=0.45)
 
-        # display annotated result
-        cv2.imshow('detection', imout)
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            cv2.destroyAllWindows()
-            raise SystemExit
+        det = pred[0]
+        det[:, :4] = scale_boxes(img_tensor.shape[2:], det[:, :4], img.shape).round()
 
+        annotator = Annotator(img, line_width=1, example=str(self.names))
+        for *xyxy, conf, cls in reversed(det):
+            label = f'{self.names[int(cls)]} {conf:.2f}'
+            annotator.box_label(xyxy, label, color=colors(int(cls), True))
+
+        imout = annotator.result()
+        cv2.imshow('Detection', imout)
+        cv2.waitKey(1)
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Detect()
+    path = str(FILE.parents[2] / 'runs' / 'train' / 'exp' / 'weights' / 'best.pt')
+    node = Detect(weights=path)
     try:
         rclpy.spin(node)
     except (SystemExit, KeyboardInterrupt):

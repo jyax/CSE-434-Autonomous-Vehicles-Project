@@ -17,3 +17,20 @@ ros_ws/
 │  ├─ av_project_08/
 │  ├─ yolov5/
 ```
+
+## Running
+In the ros_ws workspace, build the `project` package:
+```
+colcon build --symlink-install packages-select project
+```
+
+Launch the gazebo world:
+```
+cd project/launch
+ros2 launch crosswalk.launch.py
+```
+
+In a seperate terminal run the detection code:
+```
+ros2 run project detect
+```

@@ -1,0 +1,14 @@
+path: ../av_project_08/data
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['crosswalk', 'pedestrian']
+
+roboflow:
+  workspace: tuan-dmmyn
+  project: project-he2on
+  version: 4
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/tuan-dmmyn/project-he2on/dataset/4
