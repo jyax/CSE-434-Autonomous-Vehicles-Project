@@ -1,4 +1,4 @@
-# Project 08: Detection of crosswalks and pedestrians in autonomous vehicles
+# Project 08: Detection of crosswalks in AVs
 ## Setup
 Clone this repo:
 ```
@@ -30,7 +30,14 @@ cd project/launch
 ros2 launch crosswalk.launch.py
 ```
 
-In a seperate terminal run the detection code:
+Run the detection, signal, and drive node:
 ```
 ros2 run project detect
+ros2 run project stopsignal
+ros2 run project drive
 ```
+
+The `drive` node moves the turtlebot forward at different speed, depending on the signals from the other two nodes. The robot moves with a velocity of 1.0 when no crosswalks are detected, 0.3 when a crosswalk is detected, and stops when both a stop signal and a crosswalk is detected.
+
+## Datasets
+The dataset for the simulated world is located in `data_sim` and the trained weights are located at `runs/train/exp3/weights/best.pt`. The data for real world crosswalk is located in `data` and the weights are located at `runs/train/exp2/weights/best.pt`.
