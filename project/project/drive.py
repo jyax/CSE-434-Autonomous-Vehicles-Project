@@ -36,13 +36,13 @@ class Drive(Node):
     def process_cb(self):
         twist_msg = Twist()
         twist_msg.angular.z = 0.0
-        twist_msg.linear.x = 0.6 
+        twist_msg.linear.x = 1.0
 
         if self.detect_crosswalk:
             if self.detect_signal:
                 twist_msg.linear.x = 0.0
             else:
-                twist_msg.linear.x = 0.2
+                twist_msg.linear.x = 0.3
 
         self.publisher_.publish(twist_msg)
 

@@ -23,7 +23,7 @@ setup(
     entry_points={
         'console_scripts': [
             'detect=project.detect:main',
-            'stopsignal = project.stopsignal:main'
+            'stopsignal=project.stopsignal:main',
             'drive=project.drive:main',
         ],
     },
