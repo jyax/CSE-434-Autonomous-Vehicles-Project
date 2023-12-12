@@ -38,6 +38,8 @@ from utils.general import (LOGGER, Profile, check_file, check_img_size, check_im
 from ultralytics.utils.plotting import Annotator, colors
 from utils.torch_utils import select_device, smart_inference_mode
 
+CONF_THRESHOLD = 0.4
+
 class Detect(Node):
     def __init__(self, weights):
         super().__init__('crosswalks')
@@ -62,8 +64,6 @@ class Detect(Node):
             print(e)
             return
 
-        detect_thres = 0.4
-
         img_resized = cv2.resize(img,self.imgsz)  # convert to target size
         img_resized = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB) # convert to RGB
         img_tensor = torch.from_numpy(img_resized).to(self.model.device)
@@ -72,7 +72,7 @@ class Detect(Node):
 
        
         pred = self.model(img_tensor)
-        pred = non_max_suppression(pred, conf_thres=detect_thres, iou_thres=0.45)
+        pred = non_max_suppression(pred, conf_thres=CONF_THRESHOLD, iou_thres=0.45)
 
         det = pred[0]
         det[:, :4] = scale_boxes(img_tensor.shape[2:], det[:, :4], img.shape).round()
@@ -87,6 +87,7 @@ class Detect(Node):
             annotator.box_label(xyxy, label, color=colors(int(cls), True))
 
         self.publisher.publish(msg)
+        self.get_logger().info('Crosswalk: "%s"' % msg.data)
 
         imout = annotator.result()
         cv2.imshow('Detection', imout)

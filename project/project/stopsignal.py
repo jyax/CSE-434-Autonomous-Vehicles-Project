@@ -2,14 +2,16 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Bool
 
+TIME_PERIOD = 10
+
 class StopSignalPublisher(Node):
 
     def __init__(self):
         super().__init__('stopsignal_publisher')
         self.publisher_ = self.create_publisher(Bool, '/stopsignal', 10)
-        timer_period = 10
+        timer_period = TIME_PERIOD # 10
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.stop = False
+        self.stop = False # initially not stopped
 
     def timer_callback(self):
         msg = Bool()

@@ -4,6 +4,8 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 
+REGULAR_SPEED = 1.0
+SLOW_SPEED = 0.3
 
 class Drive(Node):
     def __init__(self):
@@ -25,25 +27,33 @@ class Drive(Node):
             self.signal_cb,
             10)
 
+    """
+    Returns True if detects crosswalk
+    """
     def crosswalk_cb(self, msg):
         self.detect_crosswalk = msg.data
         self.process_cb()
 
+    """
+    Returns True if detects stop signal
+    """
     def signal_cb(self, msg):
         self.detect_signal = msg.data
         self.process_cb()
 
+    """
+    Drives the robot
+    """
     def process_cb(self):
         twist_msg = Twist()
-        twist_msg.angular.z = 0.0
-        twist_msg.linear.x = 1.0
+        twist_msg.linear.x = REGULAR_SPEED # 1.0
 
         if self.detect_crosswalk:
             if self.detect_signal:
-                twist_msg.linear.x = 0.0
+                twist_msg.linear.x = 0.0 # stop
             else:
-                twist_msg.linear.x = 0.3
-
+                twist_msg.linear.x = SLOW_SPEED # 0.3
+        self.get_logger().info('Driving with velocity %f' % twist_msg.linear.x)
         self.publisher_.publish(twist_msg)
 
 def main(args=None):
@@ -56,7 +66,7 @@ def main(args=None):
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
+    drive_node.destroy_node()
     rclpy.shutdown()
 
 
