@@ -1,4 +1,5 @@
 # Project 08: Detection of crosswalks in AVs
+
 ## Setup
 Clone this repo:
 ```
@@ -38,6 +39,9 @@ ros2 run project drive
 ```
 
 The `drive` node moves the turtlebot forward at different speed, depending on the signals from the other two nodes. The robot moves with a velocity of 1.0 when no crosswalks are detected, 0.3 when a crosswalk is detected, and stops when both a stop signal and a crosswalk is detected.
+
+## Demonstration
+![Demo](demo/demo.gif)
 
 ## Datasets
 The dataset for the simulated world is located in `data_sim` and the trained weights are located at `runs/train/exp3/weights/best.pt`. The data for real world crosswalk is located in `data` and the weights are located at `runs/train/exp2/weights/best.pt`.
