@@ -77,14 +77,16 @@ class Detect(Node):
         det = pred[0]
         det[:, :4] = scale_boxes(img_tensor.shape[2:], det[:, :4], img.shape).round()
 
+        msg = Bool()
+        msg.data = False
 
         annotator = Annotator(img, line_width=1, example=str(self.names))
         for *xyxy, conf, cls in reversed(det):
-            if conf > detect_thres:
-                msg = Bool(data=True)
-                self.publisher.publish(msg)
+            msg.data = True
             label = f'{self.names[int(cls)]} {conf:.1f}'
             annotator.box_label(xyxy, label, color=colors(int(cls), True))
+
+        self.publisher.publish(msg)
 
         imout = annotator.result()
         cv2.imshow('Detection', imout)

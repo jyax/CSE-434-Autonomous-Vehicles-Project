@@ -1,0 +1,14 @@
+path: ../av_project_08/data_sim
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['crosswalk', 'ped']
+
+roboflow:
+  workspace: tuan-dmmyn
+  project: gazebo_crosswalks
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/tuan-dmmyn/gazebo_crosswalks/dataset/1

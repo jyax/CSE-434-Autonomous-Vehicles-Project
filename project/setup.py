@@ -24,6 +24,7 @@ setup(
         'console_scripts': [
             'detect=project.detect:main',
             'stopsignal = project.stopsignal:main'
+            'drive=project.drive:main',
         ],
     },
 )
