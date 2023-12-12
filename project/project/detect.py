@@ -22,6 +22,8 @@ import argparse
 import sys
 import glob
 
+from std_msgs.msg import Bool
+
 # YOLOv5 setup.  Adjust this to point to your yolov5 folder:
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[3] / 'yolov5'  # YOLOv5 root directory -- adjust this
@@ -43,6 +45,9 @@ class Detect(Node):
         self.subscription = self.create_subscription(
             Image, '/camera/image_raw', self.run_detect, 10)
 
+        self.publisher = self.create_publisher(
+            Bool, '/crosswalk', 10)
+
         print('Loading model')
         imgsz = np.array([640,640])
         device = select_device('')
@@ -57,6 +62,8 @@ class Detect(Node):
             print(e)
             return
 
+        detect_thres = 0.4
+
         img_resized = cv2.resize(img,self.imgsz)  # convert to target size
         img_resized = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB) # convert to RGB
         img_tensor = torch.from_numpy(img_resized).to(self.model.device)
@@ -65,13 +72,17 @@ class Detect(Node):
 
        
         pred = self.model(img_tensor)
-        pred = non_max_suppression(pred, conf_thres=0.1, iou_thres=0.45)
+        pred = non_max_suppression(pred, conf_thres=detect_thres, iou_thres=0.45)
 
         det = pred[0]
         det[:, :4] = scale_boxes(img_tensor.shape[2:], det[:, :4], img.shape).round()
 
+
         annotator = Annotator(img, line_width=1, example=str(self.names))
         for *xyxy, conf, cls in reversed(det):
+            if conf > detect_thres:
+                msg = Bool(data=True)
+                self.publisher.publish(msg)
             label = f'{self.names[int(cls)]} {conf:.1f}'
             annotator.box_label(xyxy, label, color=colors(int(cls), True))
 
@@ -142,7 +153,7 @@ def run_on_image(weights, # .pt file
 
 def main(args=None):
     rclpy.init(args=args)
-    path = str(FILE.parents[2] / 'runs' / 'train' / 'exp2' / 'weights' / 'best.pt')
+    path = str(FILE.parents[2] / 'runs' / 'train' / 'exp3' / 'weights' / 'best.pt')
     node = Detect(weights=path)
     #run_on_image(weights=path, imgname=str(FILE.parents[2] / 'test_img' / 'test_img5.jpg'))
     try:
