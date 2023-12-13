@@ -1,5 +1,8 @@
 # Project 08: Detection of crosswalks in AVs
 
+## Project presentation
+![Link to Google slides](https://docs.google.com/presentation/d/1QL2Lxv9YFbvxk7s1XVBa_pSkFEx5wMZNjN8dEifO9vI/edit?usp=sharing)
+
 ## Setup
 Clone this repo:
 ```
@@ -20,7 +23,7 @@ ros_ws/
 ```
 
 ## Running
-In the ros_ws workspace, build the `project` package:
+In the `ros_ws` workspace, build the `project` package:
 ```
 colcon build --symlink-install packages-select project
 ```
